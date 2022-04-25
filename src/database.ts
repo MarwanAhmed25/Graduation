@@ -15,10 +15,10 @@ if(environment === 'development'){
     console.log(environment);
     
     Client= new Pool({
-        host: test_db_host,
-        database: test_db_name,
-        user: test_db_user,
-        password: test_db_password,
+        host: 'ec2-52-18-116-67.eu-west-1.compute.amazonaws.com',
+        database: 'd4c0lbm1rr34tg',
+        user: 'yaeobcniqomegb',
+        password: '77ed86befd3929c5ec5bab3e5a3d13b0082ed1e58243b4a15e34a27a1836558a',
         port:5432
     });
 
