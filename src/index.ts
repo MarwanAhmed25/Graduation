@@ -5,6 +5,9 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import usersRoutes from './handlars/users';
 import typesRoutes from './handlars/types';
+import linksRoutes from './handlars/links';
+import commentsRoutes from './handlars/comments';
+//import charityRoutes from './handlars/charity';
 dotenv.config();
 
 //initial port and app
@@ -25,5 +28,10 @@ app.get('/',(req,res)=>{
 });
 
 usersRoutes(app);
+typesRoutes(app);
+linksRoutes(app);
+commentsRoutes(app);
+//charityRoutes(app);
+
 //export the app to use when importing the file
 export default app;
