@@ -1,115 +1,108 @@
 "use strict";
-/* import { Application, Response, Request } from 'express';
-import { Brand, brand } from '../models/brand';
-import isAdminFun from '../service/isAdmin';
-import { middelware } from '../service/middelware';
-import { brandSchema } from '../service/validation';
-
-
-
-
-
-const brand_obj = new Brand();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const types_1 = require("../models/types");
+const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
+//import { middelware } from '../service/middelware';
+//import { brandSchema } from '../service/validation';
+const type_obj = new types_1.Type();
 //return all brands in database
-async function index(req: Request, res: Response) {
-    
+async function index(req, res) {
     try {
-        const resault = await brand_obj.index();
+        const resault = await type_obj.index();
         res.status(200).json(resault);
-    } catch (e) {
+    }
+    catch (e) {
         res.status(400).json(`${e}`);
     }
 }
 //return only one brand from databse using id in request params
-async function show(req: Request, res: Response) {
+async function show(req, res) {
     try {
-        const resault = await brand_obj.show(req.params.id as unknown as number);
-        if(resault == undefined)
+        const resault = await type_obj.show(req.params.id);
+        if (resault == undefined)
             return res.status(400).json('row not exist');
         res.status(200).json(resault);
-    } catch (e) {
+    }
+    catch (e) {
         res.status(400).json(`${e}`);
     }
 }
-
 //update and return the brand with id in request params and data in request body
-async function update(req: Request, res: Response) {
-    const token = req.headers.token as unknown as string;
-    
-    
+async function update(req, res) {
+    const token = req.headers.token;
     try {
-        //check if the user super admin or admin
-        const isAdmin = isAdminFun(req.body.admin_email,req.body.admin_password,token);
+        //check if the user admin
+        const isAdmin = (0, isAdmin_1.default)('', '', token);
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const b = await brand_obj.show(parseInt(req.params.id));
-            if(b == undefined)
+            const t = await type_obj.show(parseInt(req.params.id));
+            if (t == undefined)
                 return res.status(400).json('row not exist');
-            if(req.body.name)
-                b.name = req.body.name;
-            
-            if(req.body.description)
-                b.description = req.body.description;
+            if (req.body.name)
+                t.type = req.body.name;
+            if (req.body.description)
+                t.description = req.body.description;
             //update new data to the database and return new data
-            const resault = await brand_obj.update(b);
+            const resault = await type_obj.update(t);
             res.status(200).json(resault);
-        } else res.status(400).json('Not allowed this for you!!');
-
-    } catch (e) {
+        }
+        else
+            res.status(400).json('Not allowed this for you!!');
+    }
+    catch (e) {
         res.status(400).json(`${e}`);
     }
 }
 //create and return the brand with data in request body
-async function create(req: Request, res: Response) {
-   
-    const token = req.headers.token as string;
-    
+async function create(req, res) {
+    const token = req.headers.token;
     try {
         //check if the user super admin or admin
-        const isAdmin = isAdminFun(req.body.admin_email,req.body.admin_password,token);
+        const isAdmin = (0, isAdmin_1.default)('', '', token);
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const b: brand = {
-                name: req.body.name,
-                description:req.body.description
+            const t = {
+                type: req.body.type,
+                description: req.body.description
             };
             //create new brand to the database and return new data
-            const resault = await brand_obj.create(b);
+            const resault = await type_obj.create(t);
             res.status(200).json(resault);
-        } else res.status(400).json('Not allowed this for you!!');
-
-    } catch (e) {
+        }
+        else
+            res.status(400).json('Not allowed this for you!!');
+    }
+    catch (e) {
         res.status(400).json(`${e}`);
     }
 }
 //delete and return deleted using id in request params
-async function delete_(req: Request, res: Response) {
-    const token = req.headers.token as unknown as string;
-    
+async function delete_(req, res) {
+    const token = req.headers.token;
     try {
-
         //check if the user super admin or admin
-        const isAdmin = isAdminFun(req.body.admin_email,req.body.admin_password,token);
+        const isAdmin = (0, isAdmin_1.default)('', '', token);
         //delete brand from the database and return deleted
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const resault = await brand_obj.delete(Number(req.params.id));
+            const resault = await type_obj.delete(Number(req.params.id));
             res.status(200).json(resault);
-        } else res.status(400).json('Not allowed for you.');
-
-    } catch (e) {
+        }
+        else
+            res.status(400).json('Not allowed for you.');
+    }
+    catch (e) {
         res.status(400).json(`${e}`);
     }
-    
 }
-
-function mainRoutes(app: Application) {
-    app.get('/brands', index);
-    app.get('/brands/:id', show);
-    app.post('/brands', middelware(brandSchema.create), create);
-    app.patch('/brands/:id', middelware(brandSchema.create), update);
-    app.delete('/brands/:id', delete_);
+function mainRoutes(app) {
+    app.get('/types', index);
+    app.get('/types/:id', show);
+    app.post('/types', create);
+    app.patch('/types/:id', update);
+    app.delete('/types/:id', delete_);
 }
-
-export default mainRoutes;
- */ 
+exports.default = mainRoutes;

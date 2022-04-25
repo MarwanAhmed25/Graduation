@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Brand = void 0;
+exports.Type = void 0;
 const database_1 = __importDefault(require("../database"));
-class Brand {
+class Type {
     async index() {
         try {
             const conn = await database_1.default.connect();
@@ -67,4 +67,4 @@ class Brand {
         }
     }
 }
-exports.Brand = Brand;
+exports.Type = Type;
