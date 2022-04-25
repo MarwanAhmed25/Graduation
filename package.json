@@ -11,7 +11,7 @@
     "up": "dev=test db-migrate up",
     "down": "dev=test db-migrate down",
     "test": "dev=test npm run up up && npm run build && jasmine && npm run down",
-    "start": "npm run build && node build/index.js",
+    "start": "node build/index.js",
     "dev": "npm run prettier && npm run lint && npm run test && npm run start",
     "dev-server": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./build/index.js\""
   },
