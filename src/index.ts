@@ -2,7 +2,6 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-
 dotenv.config();
 
 //initial port and app
@@ -21,5 +20,7 @@ app.listen(port, (): void => {
 app.get('/',(req,res)=>{
     res.send('hello');
 });
+
+
 //export the app to use when importing the file
 export default app;
