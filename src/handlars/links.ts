@@ -39,7 +39,7 @@ async function update(req: Request, res: Response) {
     try {
         const user = parseJwt(token).user;
         //if user it self the changes will occure
-        if (parseInt(req.params.id)== user.id) {
+        if (parseInt(req.params.organization_id)== user.id) {
             const l = await links_obj.show(parseInt(req.params.id));
             if(l == undefined)
                 return res.status(400).json('row not exist');
@@ -65,7 +65,7 @@ async function create(req: Request, res: Response) {
         //if user it self the changes will occure
         if (parseInt(req.params.id)== user.id && user.role == 'organization') {
             const l: links = {
-                user_id: Number(req.params.user_id),
+                user_id: Number(req.params.organization_id),
                 link:req.body.link
             };
             //create new brand to the database and return new data
@@ -84,7 +84,7 @@ async function delete_(req: Request, res: Response) {
     try {
         const user = parseJwt(token).user;
         //if user it self the changes will occure
-        if (parseInt(req.params.id)== user.id) {
+        if (parseInt(req.params.organization_id)== user.id) {
             const resault = await links_obj.delete(Number(req.params.id));
             res.status(200).json(resault);
         } else res.status(400).json('Not allowed for you.');
@@ -96,11 +96,11 @@ async function delete_(req: Request, res: Response) {
 }
 
 function mainRoutes(app: Application) {
-    app.get('/brands', index);
-    app.get('/brands/:id', show);
-    app.post('/brands', create);
-    app.patch('/brands/:id', update);
-    app.delete('/brands/:id', delete_);
+    app.get('/organization/:organization_id/links', index);
+    app.get('/organization/:organization_id/links/:id', show);
+    app.post('/organization/:organization_id/links', create);
+    app.patch('/organization/:organization_id/links/:id', update);
+    app.delete('/organization/:organization_id/links/:id', delete_);
 }
 
 export default mainRoutes;

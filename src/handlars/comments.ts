@@ -143,11 +143,11 @@ async function delete_(req: Request, res: Response) {
 
 function mainRoutes(app: Application) {
     
-    app.get('/products/:product_id/comments', index);
-    app.get('/products/:product_id/comments/:id', show);
-    app.post('/products/:product_id/comments', create);
-    app.patch('/products/:product_id/comments/:id', update);
-    app.delete('/products/:product_id/comments/:id', delete_);
+    app.get('/charity/:charity_id/comments', index);
+    app.get('/charity/:charity_id/comments/:id', show);
+    app.post('/charity/:charity_id/comments', create);
+    app.patch('/charity/:charity_id/comments/:id', update);
+    app.delete('/charity/:charity_id/comments/:id', delete_);
 
 
 }

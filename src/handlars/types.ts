@@ -103,11 +103,11 @@ async function delete_(req: Request, res: Response) {
 }
 
 function mainRoutes(app: Application) {
-    app.get('/brands', index);
-    app.get('/brands/:id', show);
-    app.post('/brands', create);
-    app.patch('/brands/:id', update);
-    app.delete('/brands/:id', delete_);
+    app.get('/types', index);
+    app.get('/types/:id', show);
+    app.post('/types', create);
+    app.patch('/types/:id', update);
+    app.delete('/types/:id', delete_);
 }
 
 export default mainRoutes;
