@@ -1,5 +1,5 @@
 {
-  "name": "Back-end",
+  "name": "back-end",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "lint": "eslint . --ext .ts  --fix",
     "install":"npm i",
     "clean": "rm -rf build/ || true",
-    "build": "npx tsc",
+    "build": "npm run clean && npx tsc",
     "depoly":"chmod +x bin/deploy.sh && bin/deploy.sh",
     "env-variable": "export NODE_TLS_REJECT_UNAUTHORIZED='0'",
     "up": "env=test db-migrate up",
