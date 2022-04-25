@@ -1,19 +1,19 @@
-/* import { Application, Response, Request } from 'express';
-import { Brand, brand } from '../models/brand';
-import isAdminFun from '../service/isAdmin';
-import { middelware } from '../service/middelware';
-import { brandSchema } from '../service/validation';
+import { Application, Response, Request } from 'express';
+import { Type, type } from '../models/types';
+import isAdminFun from '../utils/isAdmin';
+//import { middelware } from '../service/middelware';
+//import { brandSchema } from '../service/validation';
 
 
 
 
 
-const brand_obj = new Brand();
+const type_obj = new Type();
 //return all brands in database
 async function index(req: Request, res: Response) {
     
     try {
-        const resault = await brand_obj.index();
+        const resault = await type_obj.index();
         res.status(200).json(resault);
     } catch (e) {
         res.status(400).json(`${e}`);
@@ -22,7 +22,7 @@ async function index(req: Request, res: Response) {
 //return only one brand from databse using id in request params
 async function show(req: Request, res: Response) {
     try {
-        const resault = await brand_obj.show(req.params.id as unknown as number);
+        const resault = await type_obj.show(req.params.id as unknown as number);
         if(resault == undefined)
             return res.status(400).json('row not exist');
         res.status(200).json(resault);
@@ -37,20 +37,20 @@ async function update(req: Request, res: Response) {
     
     
     try {
-        //check if the user super admin or admin
-        const isAdmin = isAdminFun(req.body.admin_email,req.body.admin_password,token);
+        //check if the user admin
+        const isAdmin = isAdminFun('','',token);
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const b = await brand_obj.show(parseInt(req.params.id));
-            if(b == undefined)
+            const t = await type_obj.show(parseInt(req.params.id));
+            if(t == undefined)
                 return res.status(400).json('row not exist');
             if(req.body.name)
-                b.name = req.body.name;
+                t.type = req.body.name;
             
             if(req.body.description)
-                b.description = req.body.description;
+                t.description = req.body.description;
             //update new data to the database and return new data
-            const resault = await brand_obj.update(b);
+            const resault = await type_obj.update(t);
             res.status(200).json(resault);
         } else res.status(400).json('Not allowed this for you!!');
 
@@ -65,15 +65,15 @@ async function create(req: Request, res: Response) {
     
     try {
         //check if the user super admin or admin
-        const isAdmin = isAdminFun(req.body.admin_email,req.body.admin_password,token);
+        const isAdmin = isAdminFun('','',token);
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const b: brand = {
-                name: req.body.name,
+            const t: type = {
+                type: req.body.type,
                 description:req.body.description
             };
             //create new brand to the database and return new data
-            const resault = await brand_obj.create(b);
+            const resault = await type_obj.create(t);
             res.status(200).json(resault);
         } else res.status(400).json('Not allowed this for you!!');
 
@@ -88,11 +88,11 @@ async function delete_(req: Request, res: Response) {
     try {
 
         //check if the user super admin or admin
-        const isAdmin = isAdminFun(req.body.admin_email,req.body.admin_password,token);
+        const isAdmin = isAdminFun('','',token);
         //delete brand from the database and return deleted
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const resault = await brand_obj.delete(Number(req.params.id));
+            const resault = await type_obj.delete(Number(req.params.id));
             res.status(200).json(resault);
         } else res.status(400).json('Not allowed for you.');
 
@@ -105,10 +105,10 @@ async function delete_(req: Request, res: Response) {
 function mainRoutes(app: Application) {
     app.get('/brands', index);
     app.get('/brands/:id', show);
-    app.post('/brands', middelware(brandSchema.create), create);
-    app.patch('/brands/:id', middelware(brandSchema.create), update);
+    app.post('/brands', create);
+    app.patch('/brands/:id', update);
     app.delete('/brands/:id', delete_);
 }
 
 export default mainRoutes;
- */
+ 

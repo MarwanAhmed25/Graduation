@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import usersRoutes from './handlars/users';
+import typesRoutes from './handlars/types';
 dotenv.config();
 
 //initial port and app

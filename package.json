@@ -11,7 +11,7 @@
     "build": "npm run clean && npx tsc",
     "depoly": "chmod +x bin/deploy.sh && bin/deploy.sh",
     "env-variable": "export NODE_TLS_REJECT_UNAUTHORIZED='0'",
-    "up": "env=test db-migrate up",
+    "up": "db-migrate up",
     "down": "env=test db-migrate down",
     "start": "node ./build/index.js",
     "test": "env=development npm run up up && npm run build && jasmine && npm run down",

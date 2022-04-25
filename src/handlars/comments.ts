@@ -1,11 +1,12 @@
-/* import { Application, Response, Request } from 'express';
-import { Comment, comment } from '../models/feedback';
-import parseJwt from '../service/jwtParsing';
+import { Application, Response, Request } from 'express';
+import { Comment, comment } from '../models/comments';
+import parseJwt from '../utils/jwtParsing';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import isAdmin from '../service/isAdmin';
-import {middelware} from '../service/middelware';
-import {commentSchema} from '../service/validation';
+import isAdmin from '../utils/isAdmin';
+//import {middelware} from '../service/middelware';
+//import {commentSchema} from '../service/validation';
+
 dotenv.config();
 
 const secret = process.env.token;
@@ -13,7 +14,7 @@ const comment_obj = new Comment();
 //return all comments for one product with id in request params from database
 async function index(req: Request, res: Response) {
     try {
-        const resault = await comment_obj.index(Number(req.params.product_id));
+        const resault = await comment_obj.index(Number(req.params.charity_id));
         res.status(200).json(resault);
     } catch (e) {
         console.log(e);
@@ -24,7 +25,7 @@ async function index(req: Request, res: Response) {
 //return only one comment from databse using id and product_id in request params
 async function show(req: Request, res: Response) {
     try {
-        const resault = await comment_obj.show(Number(req.params.product_id),Number(req.params.id));
+        const resault = await comment_obj.show(Number(req.params.charity_id),Number(req.params.id));
         if(resault == undefined)
             return res.status(400).json('row not exist');
         res.status(200).json(resault);
@@ -50,17 +51,14 @@ async function update(req: Request, res: Response) {
         }else res.status(400).json('login required.');
 
         if (isTrue) {
-            const c = await comment_obj.show(req.params.product_id as unknown as number, req.params.id as unknown as number);
-            if(c == undefined)
-                return res.status(400).json('row not exist');
-            if(req.body.subject)  
-                c.subject = req.body.subject;
-
+            const user = parseJwt(token).user;
+            const c = await comment_obj.show(req.params.charity_id as unknown as number, req.params.id as unknown as number);
+            if(c == undefined || user.id != c.user_id)
+                return res.status(400).json('row not exist or not allowed for you.');
+            
             if(req.body.message)  
                 c.message = req.body.message;
 
-            if(req.body.vote)  
-                c.vote = Number(req.body.vote);
             //update and return new comment data
             const resault = await comment_obj.update(c);
             res.status(200).json(resault);
@@ -95,11 +93,9 @@ async function create(req: Request, res: Response) {
 
         if (isTrue) {
             const c: comment = {
-                subject: req.body.subject,
                 message:req.body.message,
                 user_id:id,
-                product_id:Number(req.params.product_id),
-                vote:req.body.vote
+                charity_id:Number(req.params.charity_id),
             };
             //update and return new comment data
             const resault = await comment_obj.create(c);
@@ -114,10 +110,11 @@ async function create(req: Request, res: Response) {
 }
 //delete and return deleted using id and product_id in request params
 async function delete_(req: Request, res: Response) {
-    const {admin_email,admin_password} = process.env;
     let isTrue = false;
     const token = req.headers.token as unknown as string;
-    
+    const admin_email = req.headers.admin_email as unknown as string;
+    const admin_password = req.headers.admin_password as unknown as string;
+
     try {
         if(token){
             const permession = jwt.verify(token, secret as string);
@@ -129,9 +126,10 @@ async function delete_(req: Request, res: Response) {
 
         const isA = isAdmin(admin_email as string ,admin_password as string,token);
         
+        const user = parseJwt(token).user;
         //if token is exist will delete the comment with product_id and id in params
         if (isA || isTrue) {
-            const resault = await comment_obj.delete(Number(req.params.product_id),Number(req.params.id));
+            const resault = await comment_obj.delete(Number(user.id),Number(req.params.id));
             return res.status(200).json(resault);
         } else return res.status(400).json('user not exist.');
     } catch (e) {
@@ -147,12 +145,12 @@ function mainRoutes(app: Application) {
     
     app.get('/products/:product_id/comments', index);
     app.get('/products/:product_id/comments/:id', show);
-    app.post('/products/:product_id/comments', middelware(commentSchema.create), create);
-    app.patch('/products/:product_id/comments/:id', middelware(commentSchema.create), update);
+    app.post('/products/:product_id/comments', create);
+    app.patch('/products/:product_id/comments/:id', update);
     app.delete('/products/:product_id/comments/:id', delete_);
 
 
 }
 
 export default mainRoutes;
- */
+ 

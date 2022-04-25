@@ -9,7 +9,7 @@ export type type = {
     description?: string;
   };
 
-export class Brand {
+export class Type {
     async index(): Promise<type[]> {
         try {
             const conn = await Client.connect();
