@@ -3,7 +3,6 @@ import { Application, Response, Request } from 'express';
 import nodemailer from 'nodemailer';
 import { Admin, admin } from '../models/admins';
 import parseJwt from '../utils/jwtParsing';
-import isAdminFun from '../utils/isAdmin';
 import jwt from 'jsonwebtoken';
 //import {middelware} from '../service/middelware';
 import bcrypt from 'bcrypt';
@@ -11,6 +10,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const secret: string = process.env.token as unknown as string;
+const admin_password_exist = process.env.admin_password || 'marwan';
+const admin_email_exist = process.env.admin_email || 'marwan@gmail.com';
 const user_obj = new Admin();
 
 const transporter = nodemailer.createTransport({
@@ -66,7 +67,7 @@ async function update(req: Request, res: Response) {
         if(user_ == undefined)
             return res.status(400).json('row not exist');
         //check if request from super admin 
-        if(process.env.admin_email === admin_email && process.env.admin_password === admin_password){
+        if(admin_email_exist === admin_email && admin_password_exist === admin_password){
             user_type = 'super_admin';
         }else if(token){//check the token if exist to know if admin or user want to update
             const permession = jwt.verify(token, secret);
@@ -147,8 +148,8 @@ async function delete_(req: Request, res: Response) {
     const admin_password = req.headers.admin_password as unknown as string;
 
     //check if the request from super admin?
-    const isTrue = isAdminFun(admin_email,admin_password,'');
-    if (isTrue) {//if token exist and the request params.id == token user.id
+
+    if (admin_email_exist === admin_email && admin_password_exist === admin_password) {//if token exist and the request params.id == token user.id
         try {
             const resault = await user_obj.delete(Number(req.params.id)); //delete user from database by id
             res.status(200).json(resault); //return deleted
