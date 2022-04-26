@@ -36,7 +36,7 @@ dotenv_1.default.config();
 
 } */
 const Client = new pg_1.Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL || 'postgres://yaeobcniqomegb:77ed86befd3929c5ec5bab3e5a3d13b0082ed1e58243b4a15e34a27a1836558a@ec2-52-18-116-67.eu-west-1.compute.amazonaws.com:5432/d4c0lbm1rr34tg',
     ssl: {
         rejectUnauthorized: false
     }

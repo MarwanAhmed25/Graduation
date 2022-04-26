@@ -13,6 +13,7 @@ const types_1 = __importDefault(require("./handlars/types"));
 const links_1 = __importDefault(require("./handlars/links"));
 const comments_1 = __importDefault(require("./handlars/comments"));
 const charity_1 = __importDefault(require("./handlars/charity"));
+const admins_1 = __importDefault(require("./handlars/admins"));
 dotenv_1.default.config();
 //initial port and app
 const PORT = process.env.PORT || 5000;
@@ -33,5 +34,6 @@ app.get('/', (req, res) => {
 (0, links_1.default)(app);
 (0, comments_1.default)(app);
 (0, charity_1.default)(app);
+(0, admins_1.default)(app);
 //export the app to use when importing the file
 exports.default = app;
