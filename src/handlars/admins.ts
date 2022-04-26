@@ -1,7 +1,7 @@
 import { Application, Response, Request } from 'express';
 //import { userSchema } from '../service/validation';
 import nodemailer from 'nodemailer';
-import { User, user } from '../models/users';
+import { Admin, admin } from '../models/admins';
 import parseJwt from '../utils/jwtParsing';
 import isAdminFun from '../utils/isAdmin';
 import jwt from 'jsonwebtoken';
@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const secret: string = process.env.token as unknown as string;
-const user_obj = new User();
+const user_obj = new Admin();
 
 const transporter = nodemailer.createTransport({
     service: 'gmail', 
@@ -55,6 +55,8 @@ return token for updated user [user can update all his data except (coupon_id, s
 async function update(req: Request, res: Response) {
     let user_type = 'user';
 
+    const admin_email = req.headers.admin_email as unknown as string;
+    const admin_password = req.headers.admin_password as unknown as string;
     const token = req.headers.token as unknown as string;
     const id = parseInt(req.params.id);
 
@@ -63,15 +65,16 @@ async function update(req: Request, res: Response) {
         //console.log(user_);
         if(user_ == undefined)
             return res.status(400).json('row not exist');
-        else if(token){//check the token if exist to know if admin or user want to update
+        //check if request from super admin 
+        if(process.env.admin_email === admin_email && process.env.admin_password === admin_password){
+            user_type = 'super_admin';
+        }else if(token){//check the token if exist to know if admin or user want to update
             const permession = jwt.verify(token, secret);
             
             if(permession)
             {
                 const user = parseJwt(token);
-                if(user.user.status == 'admin')
-                    user_type = 'admin'; 
-                else if(id != user.user.id){
+                if(id != user.user.id){
                     return res.status(200).json('not allowed this change');
                 }
             }
@@ -92,24 +95,13 @@ async function update(req: Request, res: Response) {
                 user_.birthday=req.body.birthday;
             if(req.body.phone)
                 user_.phone=req.body.phone;
-            if(req.body.city)
-                user_.city=req.body.city;
             if(req.body.address)
                 user_.address=req.body.address;
-            if(req.body.rate)
-                user_.rate=req.body.rate;
-            if(req.body.images)
-                user_.images=req.body.images;
-            if(req.body.description)
-                user_.description=req.body.description;
             
-        }else { //if admin 
+        }else { //if super admin
 
             if(req.body.status)
                 user_.status = req.body.status;
-            if(req.body.role){
-                user_.role = req.body.role;
-            }
             
         }
         
@@ -126,22 +118,17 @@ async function update(req: Request, res: Response) {
 async function create(req: Request, res: Response) {
     
     //create type user with getting data to send to the database
-    const u: user = {
-        f_name:req.body.f_name, 
-        l_name:req.body.l_name, 
-        email:req.body.email, //required
-        password:req.body.password, //required
-        birthday:req.body.birthday, 
-        phone:req.body.phone, 
-        status:'active',//the default of status is active 
-        city:req.body.city,
-        address:req.body.address,
-        type_id:req.body.type_id,
-        admin_id:req.body.admin_id,
-        role:req.body.role,
-        rate:0,//default 0
-        images:req.body.images,
-        description:req.body.description,
+    const u: admin = {
+        f_name: req.body.f_name,
+        l_name: req.body.l_name,
+        email: req.body.email,
+        password: req.body.password,
+        birthday: req.body.birthday,
+        address: req.body.address,
+        phone: req.body.phone,
+        status: 'active', //default value when create is active
+        created_at: new Date(), //default value when create is date now
+        salary: Number(req.body.salary)
     };
         //send user type to the database to create
     try {                
@@ -155,35 +142,27 @@ async function create(req: Request, res: Response) {
 }
 //return deleted and delete user using id in request params [only user delete it self]
 async function delete_(req: Request, res: Response) {
-    const token = req.headers.token as unknown as string;
-    const id = parseInt(req.params.id);
-    let permession = false;
-    if(token)
-    {
-        const per = jwt.verify(token,secret);
-        if(per)
-            permession = true; 
-        else
-            res.status(400).json('user not exist.');  
-    }else
-        res.status(400).json('login token required');
+
+    const admin_email = req.headers.admin_email as unknown as string;
+    const admin_password = req.headers.admin_password as unknown as string;
 
     //check if the request from super admin?
-    if (permession && (id == parseInt(parseJwt(token).user.id))) {//if token exist and the request params.id == token user.id
+    const isTrue = isAdminFun(admin_email,admin_password,'');
+    if (isTrue) {//if token exist and the request params.id == token user.id
         try {
-            const resault = await user_obj.delete(id); //delete user from database by id
+            const resault = await user_obj.delete(Number(req.params.id)); //delete user from database by id
             res.status(200).json(resault); //return deleted
         } catch (e) {
             res.status(400).json(`${e}`);
         }
     } else 
-        res.status(400).json('token required or id params wrong.');//else return error
+        res.status(400).json('authentication required or id params wrong.');//else return error
 }
 //return token for user and login the user using email and password from request body
 async function login(req: Request, res: Response) {
     
-    const email = req.headers.email as unknown as string;//required
-    const password = req.headers.password as unknown as string;//required
+    const email = req.headers.admin_email as unknown as string;//required
+    const password = req.headers.admin_password as unknown as string;//required
     
     try {
 
@@ -283,16 +262,16 @@ async function reset_password(req: Request, res: Response) {
 } */
 //main routes of user model
 function mainRoutes(app: Application) {
-    app.post('/auth/login', login);
-    app.get('/auth/forget_password',forget_password);
-    app.post('/auth/reset_password', reset_password);
+    app.post('admins/auth/login', login);
+    app.get('admins/auth/forget_password',forget_password);
+    app.post('admins/auth/reset_password', reset_password);
     //
-    app.get('/users', index);
-    app.get('/users/:id', show);
-    app.post('/users', create);
-    // app.get('/users/:id/get_token', get_token);
-    app.patch('/users/:id', update);
-    app.delete('/users/:id', delete_);
+    app.get('/admins', index);
+    app.get('/admins/:id', show);
+    app.post('/admins', create);
+    //app.get('/admins/:id/get_token', get_token);
+    app.patch('/admins/:id', update);
+    app.delete('/admins/:id', delete_);
 }
 
 export default mainRoutes;
